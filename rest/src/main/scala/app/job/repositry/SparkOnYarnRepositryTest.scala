@@ -245,12 +245,10 @@ object SparkOnYarnRepositryTest extends App {
         val value = (one \ "value").text
         buffer += "--conf"
         buffer += s"${name}=${value}"
-        println(s"${name}=${value}")
       }
     }
     buffer.toArray
   }
-
 
 //   test1()
   test2()

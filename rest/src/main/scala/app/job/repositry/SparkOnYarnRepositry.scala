@@ -4,11 +4,10 @@ package app.job.repositry
   * Created by iodone on {20-07-23}.
   */
 
-import java.lang.Thread.UncaughtExceptionHandler
 import java.net.URLClassLoader
 
 import scala.reflect.runtime.{universe => ru}
-import scala.util.{Try, Success, Failure}
+import scala.util.{Success, Failure}
 
 object SubmitUtil {
 
@@ -35,7 +34,6 @@ object SubmitUtil {
 
     val submitApplicationMethod = clientClass.getDeclaredMethod("submitApplication")
 
-
     @volatile var appId:String = null
     @volatile var maybeException: Option[Throwable] = None
     val thread = new Thread(() => {
@@ -58,7 +56,6 @@ object SubmitUtil {
             sparkConfInstance.asInstanceOf[AnyRef]):_*)
         }
         appId = submitApplicationMethod.invoke(clientInstance).toString
-        Thread.sleep(5*1000)
     })
 
     thread.setContextClassLoader(env)
