@@ -62,6 +62,7 @@ object SubmitUtil {
     thread.setUncaughtExceptionHandler((_: Thread, e: Throwable) => {maybeException = Some(e) })
     thread.start()
     thread.join(timeoutMills)
+    thread.interrupt()
 
     maybeException match {
       case None =>
