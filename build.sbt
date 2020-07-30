@@ -8,11 +8,10 @@ scalaVersion := scalaV
 
 // for spark
 lazy val sparkDependencies = Seq(
-  //  "org.apache.spark" %% "spark-core" % "2.3.2" % "provided",
-  "org.apache.spark" %% "spark-yarn" % sparkVersion
-  // "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
+//    "org.apache.spark" %% "spark-core" %  % "provided",
+  "org.apache.spark" %% "spark-yarn" % sparkVersion,
+   "org.apache.spark" %% "spark-sql" % sparkVersion
   // "org.apache.spark" %% "spark-catalyst" % "2.3.2"
-
 )
 
 // for scala
@@ -33,14 +32,13 @@ lazy val scalaDependencies = Seq(
   "io.getquill" %% "quill-jdbc" % "3.4.10",
 
 
-  // Config file parser
+  // Config file dsl.parser
   "com.github.pureconfig" %% "pureconfig" % "0.12.3",
 
   // JSON serialization library
-  "io.circe" %% "circe-core" % "0.10.0",
-  "io.circe" %% "circe-generic" % "0.10.0",
-  "io.circe" %% "circe-parser" % "0.10.0",
-  "io.circe" %% "circe-optics" % "0.10.0",
+  "io.circe" %% "circe-core" % "0.12.3",
+  "io.circe" %% "circe-generic" % "0.12.3",
+  "io.circe" %% "circe-parser" % "0.12.3",
 
   // Sugar for serialization and deserialization in akka-http with circe
   "de.heikoseeberger" %% "akka-http-circe" % "1.20.1",
@@ -205,6 +203,21 @@ lazy val rest = (project in file("rest"))
   .settings(universalSettings)
   .enablePlugins(sbtdocker.DockerPlugin)
   .settings(dockerSettings)
+
+lazy val dsl = (project in file("dsl"))
+  .settings(
+    scalaVersion := scalaV,
+    excludeDependencies ++= Seq(
+      // commons-logging is replaced by jcl-over-slf4j
+//      ExclusionRule("org.slf4j", "slf4j-log4j12")
+    ),
+    libraryDependencies ++= sparkDependencies ++ Seq(
+      "org.joda" % "joda-convert" % "1.8.1",
+      "joda-time" % "joda-time" % "2.9.3" % "provided",
+      "org.apache.velocity" % "velocity-engine-core" % "2.0"
+    )
+  )
+
 
 lazy val spark232Test = (project in file("spark"))
   .settings(
