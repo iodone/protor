@@ -12,8 +12,8 @@ object SaveAnalyzer extends Analyzer {
     var format = ""
     var mode = ""
     var path = ""
-    var option = Map[String, String]()
     var tempView = ""
+    var option = Map[String, String]()
     var partitionByCol = Array[String]()
 
     (0 until ctx.getChildCount).foreach {
@@ -41,6 +41,11 @@ object SaveAnalyzer extends Analyzer {
         case _ =>
       }
     }
+
+    val st = path.split("\\.", 2)
+    val (namespace, table) = if (st.length == 1) ("", st(0)) else (st(0), st(1))
+
+    SaveStatement(mode, tempView, Source(format, namespace, table), option, getOrginText(ctx))
 
   }
 }

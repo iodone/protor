@@ -2,10 +2,14 @@ package dsl.analyzer
 
 import java.io.{StringReader, StringWriter}
 
+import dsl.parser.DSLSQLLexer
 import dsl.parser.DSLSQLParser.SqlContext
+import org.antlr.v4.runtime.misc.Interval
 import org.joda.time.DateTime
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.catalyst.analysis.UnresolvedRelation
 
 /**
   * Created by iodone on {20-7-30}.
@@ -16,6 +20,21 @@ trait Analyzer extends AnalyzerTool {
 }
 
 trait AnalyzerTool {
+
+  def parseSql(sql: String, sparkSession: SparkSession): Seq[String] = {
+    val logicPlan = sparkSession.sessionState.sqlParser.parsePlan(sql)
+    logicPlan.collect {
+      case node: UnresolvedRelation => node.tableName
+    }
+  }
+
+  def getOrginText(ctx: SqlContext): String = {
+    val input = ctx.start.getTokenSource().asInstanceOf[DSLSQLLexer]._input
+    val start = ctx.start.getStartIndex()
+    val stop = ctx.stop.getStopIndex()
+    val interval = new Interval(start, stop)
+    input.getText(interval)
+  }
 
   def render(templateStr: String, root: Map[String, AnyRef]) = {
     val context: VelocityContext = new VelocityContext

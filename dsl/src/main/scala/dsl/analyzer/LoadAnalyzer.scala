@@ -23,17 +23,18 @@ object LoadAnalyzer extends Analyzer {
         case s: BooleanExpressionContext =>
           option += (cleanStr(s.expression().identifier().getText) -> cleanStr(s.expression().STRING().getText))
         case s: PathContext =>
-          path = s.getText
+          path = cleanStr(s.getText)
         case s: TableNameContext =>
           tempView = s.getText
         case _ =>
       }
     }
 
+
     val st = path.split("\\.", 2)
     val (namespace, table) = if (st.length == 1) ("", st(0)) else (st(0), st(1))
 
-    LoadStatement(Source(format, namespace), tempView, option, ctx.getText)
+    LoadStatement(Source(format, namespace, table), tempView, option, getOrginText(ctx))
 
   }
 }

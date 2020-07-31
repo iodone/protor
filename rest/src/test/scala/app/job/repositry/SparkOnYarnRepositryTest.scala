@@ -41,7 +41,7 @@ object SparkOnYarnRepositryTest extends App {
       "--arg", "-xmatrix.carbondata.meta",
       "--arg", "hdfs://nameservice1/user/hive/carbonstore/default")
 
-    val sparkArgs = Array("--conf", "spark.yarn.jars=hdfs://nameservice1/user/spark2/app/cube/jar/ext/3.0.0/*,hdfs://nameservice1/user/spark2/app/cube/jar/lib/3.0.0/*,hdfs://nameservice1/user/spark2/app/cube/jar/udf/*",
+    val sparkArgs = Array("--jars", "spark.yarn.jars=hdfs://nameservice1/user/spark2/app/cube/jar/ext/3.0.0/*,hdfs://nameservice1/user/spark2/app/cube/jar/lib/3.0.0/*,hdfs://nameservice1/user/spark2/app/cube/jar/udf/*",
       "--conf", "spark.sql.files.maxPartitionBytes=134217728",
       "--conf", "spark.serializer=org.apache.spark.serializer.KryoSerializer",
       "--conf", "spark.shuffle.service.enable=true",

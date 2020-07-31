@@ -27,7 +27,7 @@ object ConnectAnalyzer extends Analyzer {
         case _ =>
       }
     }
-    ConnectStatement(Source(format, namespace), option, ctx.getText)
+    ConnectStatement(format, namespace, option, getOrginText(ctx))
 
   }
 

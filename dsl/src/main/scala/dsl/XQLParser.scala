@@ -7,11 +7,11 @@ package dsl
 
 import org.antlr.v4.runtime.tree._
 import org.antlr.v4.runtime._
-
 import dsl.analyzer._
 import dsl.parser._
 import dsl.parser.DSLSQLParser._
 import dsl.analyzer.Statement
+import org.apache.spark.sql.SparkSession
 
 object XQLParser {
 
@@ -26,22 +26,36 @@ object XQLParser {
     (listener.statements, input)
   }
 
+  def main(args: Array[String]) = {
+    val xql =   """
+                  |select * from table_1 as table_2 options `x`="true";
+                  |
+                  |load tidb.`db2.tidb_news_info` options `a`="b" and `c`="d" as tidb_hello;
+                  |
+                  |save overwrite result as csv.`tmp_csv_test` options header="true" and fileNum="1";
+                  |
+                  |connect es where `es.nodes`="192.168.200.152" and `es.port`="9200" and `es.net.http.auth.user`="test" and `es.net.http.auth.pass`="123456" as db1;
+                """.stripMargin
+    val sparkSession = SparkSession.builder().appName("dsl").master("local[1]").getOrCreate()
+    val res = parse(xql, new XQLAnalyzeListener(sparkSession))
+    res._1.foreach(println(_))
+  }
 }
 
-class XQLAnalyzeListener extends DSLSQLListener {
+class XQLAnalyzeListener(val sparkSession: SparkSession) extends DSLSQLListener {
 
   var statements: Seq[Statement] = Nil
 
   override def exitSql(ctx: SqlContext): Unit = {
     ctx.getChild(0).getText.toLowerCase() match {
       case "load" =>
-        statements = LoadAnalyzer.analyze(ctx) +: statements
+        statements = statements ++ Seq(LoadAnalyzer.analyze(ctx))
       case "select" =>
-        statements = SelectAnalyzer.analyze(ctx) +: statements
+        statements = statements ++ Seq(SelectAnalyzer(this).analyze(ctx))
       case "save" =>
-        statements = SaveAnalyzer.analyze(ctx) +: statements
+        statements = statements ++ Seq(SaveAnalyzer.analyze(ctx))
       case "connect" =>
-        statements = ConnectAnalyzer.analyze(ctx) +: statements
+        statements = statements ++ Seq(ConnectAnalyzer.analyze(ctx))
 //      case "create" =>
 //        new CreateAdaptor(this).parse(ctx)
 //      case "insert" =>

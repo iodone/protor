@@ -45,7 +45,8 @@ object SubmitUtil {
           case Array("--conf", kv) =>
             val args = kv.split("=",2)
             setterMethod.invoke(sparkConfInstance, args: _*)
-          case _ =>
+          case Array("--jars", path) => _
+
         }
 
         val clientInstance = if (version.startsWith("3")) {
